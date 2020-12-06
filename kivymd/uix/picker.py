@@ -159,38 +159,42 @@ MDThemePicker
     :align: center
 """
 
-__all__ = ("MDTimePicker", "MDDatePicker", "MDThemePicker")
+__all__ = (
+    "MDTimePicker",
+    "MDDatePicker",
+    "MDThemePicker",
+)
 
-import calendar
 import datetime
+import calendar
 from datetime import date
 
-from kivy.clock import Clock
-from kivy.core.window import Window
 from kivy.lang import Builder
+from kivy.uix.modalview import ModalView
+from kivy.uix.floatlayout import FloatLayout
 from kivy.properties import (
-    BooleanProperty,
-    ListProperty,
+    StringProperty,
     NumericProperty,
     ObjectProperty,
+    BooleanProperty,
+    ListProperty,
     OptionProperty,
-    StringProperty,
 )
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.behaviors import ButtonBehavior
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.modalview import ModalView
+from kivy.clock import Clock
+from kivy.core.window import Window
 from kivy.utils import get_color_from_hex
 
-from kivymd.color_definitions import colors, palette
+from kivymd.uix.label import MDLabel
+from kivymd.uix.button import MDIconButton
 from kivymd.theming import ThemableBehavior
 from kivymd.uix.behaviors import (
+    SpecificBackgroundColorBehavior,
     CircularRippleBehavior,
     RectangularElevationBehavior,
-    SpecificBackgroundColorBehavior,
 )
-from kivymd.uix.button import MDIconButton
-from kivymd.uix.label import MDLabel
+from kivymd.color_definitions import colors, palette
 
 Builder.load_string(
     """
@@ -199,17 +203,17 @@ Builder.load_string(
 
 
 <MDDatePicker>
-    background: '{}/transparent.png'.format(images_path)
     cal_layout: cal_layout
     size_hint: (None, None)
     size:
         (dp(328), dp(484)) if self.theme_cls.device_orientation == 'portrait'\
         else (dp(512), dp(304))
     pos_hint: {'center_x': .5, 'center_y': .5}
+
     canvas:
         Color:
             rgb: app.theme_cls.primary_color
-        RoundedRectangle:
+        Rectangle:
             size:
                 (dp(328), dp(96))\
                 if self.theme_cls.device_orientation == 'portrait'\
@@ -218,13 +222,9 @@ Builder.load_string(
                 (root.pos[0], root.pos[1] + root.height - dp(96))\
                 if self.theme_cls.device_orientation == 'portrait'\
                 else (root.pos[0], root.pos[1] + root.height - dp(304))
-            radius: [root.radius[0], root.radius[1], dp(0), dp(0)] \
-                    if self.theme_cls.device_orientation == 'portrait'\
-                    else [root.radius[0], dp(0), dp(0), root.radius[3]]
         Color:
             rgb: app.theme_cls.bg_normal
-
-        RoundedRectangle:
+        Rectangle:
             size:
                 (dp(328), dp(484) - dp(96))\
                 if self.theme_cls.device_orientation == 'portrait'\
@@ -233,9 +233,6 @@ Builder.load_string(
                 (root.pos[0], root.pos[1] + root.height - dp(96) - (dp(484) - dp(96)))\
                 if self.theme_cls.device_orientation == 'portrait'\
                 else (root.pos[0] + dp(168), root.pos[1])
-            radius: [dp(0), dp(0), root.radius[2], root.radius[3]] \
-                    if self.theme_cls.device_orientation == 'portrait'\
-                    else [dp(0), root.radius[1], root.radius[2], dp(0)]
 
     MDLabel:
         id: label_full_date
@@ -305,6 +302,7 @@ Builder.load_string(
         size_hint: (None, None)
         size: root.width, dp(30)
         pos: root.pos
+        theme_text_color: 'Primary'
         pos_hint:
             {'center_x': .5, 'center_y': .75}\
             if self.theme_cls.device_orientation == 'portrait'\
@@ -624,7 +622,7 @@ class MDDatePicker(
         self.cal_list = cal_list
 
     def change_month(self, operation):
-        op = 1 if operation == "next" else -1
+        op = 1 if operation is "next" else -1
         sl, sy = self.month, self.year
         m = 12 if sl + op == 0 else 1 if sl + op == 13 else sl + op
         y = sy - 1 if sl + op == 0 else sy + 1 if sl + op == 13 else sy
@@ -645,16 +643,14 @@ Builder.load_string(
     canvas:
         Color:
             rgba: self.theme_cls.bg_light
-        RoundedRectangle:
+        Rectangle:
             size: (dp(270), dp(335))
             pos: (root.pos[0], root.pos[1] + root.height - dp(335) - dp(95))
-            radius: [dp(0), dp(0), root.radius[2], root.radius[3]]
         Color:
             rgba: self.theme_cls.primary_color
-        RoundedRectangle:
+        Rectangle:
             size: (dp(270), dp(95))
             pos: (root.pos[0], root.pos[1] + root.height - dp(95))
-            radius: [root.radius[0], root.radius[1], dp(0), dp(0)]
         Color:
             rgba: self.theme_cls.bg_dark
         Ellipse:
@@ -693,7 +689,6 @@ class MDTimePicker(
     ThemableBehavior, FloatLayout, ModalView, RectangularElevationBehavior
 ):
     time = ObjectProperty()
-
     """
     Users method. Must take two parameters:
 
@@ -711,14 +706,6 @@ class MDTimePicker(
 
     :attr:`time` is an :class:`~kivy.properties.ObjectProperty`
     and defaults to `None`.
-    """
-
-    radius = ListProperty([0, 0, 0, 0])
-    """
-    Corner radius values.
-
-    :attr:`radius` is an :class:`~kivy.properties.ListProperty`
-    and defaults to `'[0, 0, 0, 0]'`.
     """
 
     def __init__(self, **kwargs):
@@ -782,16 +769,15 @@ Builder.load_string(
     canvas:
         Color:
             rgb: app.theme_cls.primary_color
-        RoundedRectangle:
+        Rectangle:
             size: self.width, dp(120)
             pos: root.pos[0], root.pos[1] + root.height - dp(120)
-            radius: [root.radius[0], root.radius[1], dp(0), dp(0)]
         Color:
             rgb: app.theme_cls.bg_normal
-        RoundedRectangle:
+        Rectangle:
             size: self.width, dp(290)
             pos: root.pos[0], root.pos[1] + root.height - (dp(120) + dp(290))
-            radius: [dp(0), dp(0), root.radius[2], root.radius[3]]
+
 
     MDFlatButton:
         id: close_button
