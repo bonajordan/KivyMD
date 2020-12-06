@@ -217,29 +217,29 @@ Mode:
 
 .. seealso::
 
-    `Components-Bottom-App-Bar <https://github.com/kivymd/KivyMD/wiki/Components-Bottom-App-Bar>`_
+    `Components-Bottom-App-Bar <https://github.com/HeaTTheatR/KivyMD/wiki/Components-Bottom-App-Bar>`_
 """
 
 from kivy.animation import Animation
 from kivy.clock import Clock
-from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.metrics import dp
 from kivy.properties import (
     ListProperty,
+    StringProperty,
     NumericProperty,
     OptionProperty,
-    StringProperty,
 )
 from kivy.uix.boxlayout import BoxLayout
+from kivy.core.window import Window
 from kivy.uix.floatlayout import FloatLayout
 
-from kivymd.theming import ThemableBehavior
+from kivymd.uix.button import MDIconButton, MDFloatingActionButton
 from kivymd.uix.behaviors import (
-    RectangularElevationBehavior,
     SpecificBackgroundColorBehavior,
+    RectangularElevationBehavior,
 )
-from kivymd.uix.button import MDFloatingActionButton, MDIconButton
+from kivymd.theming import ThemableBehavior
 
 Builder.load_string(
     """
@@ -264,8 +264,10 @@ Builder.load_string(
     height: root.theme_cls.standard_increment
     padding: [root.theme_cls.horizontal_margins - dp(12), 0]
     opposite_colors: True
-    elevation: root.elevation
-    md_bg_color: self.theme_cls.primary_color if root.type != "bottom" else [0, 0, 0, 0]
+    elevation: 6
+    md_bg_color:  self.md_bg_color if self.md_bg_color else self.theme_cls.primary_color
+    
+    #md_bg_color: self.theme_cls.primary_color if root.type != "bottom" else [0, 0, 0, 0]
 
     canvas:
         Color:
@@ -278,7 +280,7 @@ Builder.load_string(
             size:
                 (((self.width - root.action_button.width) / 2 - dp(6), self.height) \
                 if root.mode == "center" else \
-                (root.action_button.width - dp(6), self.height)) if root.type == "bottom" else (0, 0)
+                (root.action_button.width - dp(6), self.height)) if root.type == "bottom" else self.pos
             radius:
                 (0, root.round, 0, 0) if root.mode == "center" else (root.round, 0, 0, 0)
         Rectangle:
@@ -358,15 +360,6 @@ class MDToolbar(
         `on_action_button`
             Method for the button used for the :class:`~MDBottomAppBar` class.
     """
-
-    elevation = NumericProperty(6)
-    """
-    Elevation value.
-
-    :attr:`elevation` is an :class:`~kivy.properties.NumericProperty`
-    and defaults to `6`.
-    """
-
     left_action_items = ListProperty()
     """The icons on the left of the toolbar.
     To add one, append a list like the following:
@@ -397,25 +390,19 @@ class MDToolbar(
     and defaults to `''`.
     """
 
-    md_bg_color = ListProperty([0, 0, 0, 0])
+    md_bg_color = ListProperty()
     """Color toolbar.
-
+    
     :attr:`md_bg_color` is an :class:`~kivy.properties.ListProperty`
     and defaults to `[0, 0, 0, 0]`.
     """
 
-    anchor_title = OptionProperty("left", options=["left", "center", "right"])
-    """Position toolbar title.
-    Available options are: `'left'`, `'center'`, `'right'`.
-
-    :attr:`anchor_title` is an :class:`~kivy.properties.OptionProperty`
-    and defaults to `'left'`.
-    """
+    anchor_title = StringProperty("left")
 
     mode = OptionProperty(
         "center", options=["free-end", "free-center", "end", "center"]
     )
-    """Floating button position. Only for :class:`~MDBottomAppBar` class.
+    """Floating button position. Onle for :class:`~MDBottomAppBar` class.
     Available options are: `'free-end'`, `'free-center'`, `'end'`, `'center'`.
 
     :attr:`mode` is an :class:`~kivy.properties.OptionProperty`
@@ -438,10 +425,10 @@ class MDToolbar(
     :attr:`icon` is an :class:`~kivy.properties.StringProperty`
     and defaults to `'android'`.
     """
-
+   
     icon_color = ListProperty()
     """
-    Color action button. Onle for :class:`~MDBottomAppBar` class.
+    Color action button. Only for :class:`~MDBottomAppBar` class.
 
     :attr:`icon_color` is an :class:`~kivy.properties.ListProperty`
     and defaults to `[]`.
@@ -458,7 +445,7 @@ class MDToolbar(
 
             MDToolbar:
                 type: "bottom"
-
+    
     Available options are: `'top'`, `'bottom'`.
 
     :attr:`type` is an :class:`~kivy.properties.OptionProperty`
